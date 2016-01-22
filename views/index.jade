@@ -1,0 +1,38 @@
+doctype html
+html(ng-app="app")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Young Night: Nightlife Coordination App
+    link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css")
+    link(rel="stylesheet", href="/public/stylesheets/style.css")
+    link(href="https://fonts.googleapis.com/css?family=Lobster", rel="stylesheet", type="text/css")
+    link(href="https://fonts.googleapis.com/css?family=Lato", rel="stylesheet", type="text/css")
+    link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.css", type="text/css", media="all")
+  body(ng-controller="mainCtrl")
+    .container
+      .row
+        .col-xs-12
+          h1 The Night Is Young
+          h3 Find bars in your area. Let your friends find you.
+      .row
+        .col-xs-12
+          .input-group
+            input.form-control(type="text", placeholder="Search by City, State, or Zip Code", name="text", ng-model="formData.text")
+            span.input-group-btn
+              button.btn.btn-default(type="submit", ng-click="searchBars(formData.text)") Search!
+      .row
+        .col-xs-12
+          .bars(ng-repeat="bar in bars.businesses")
+            .bar-box
+              a(href="{{bar.url}}", target="_blank")
+                img.img-rounded(src="{{bar.image_url}}", style="float: left; padding-right: 10px")
+              a(href="{{bar.url}}", target="_blank")
+                p.lead {{bar.name}}
+              button.btn.btn-primary(type="submit", ng-click="goToBars(bar.id)") Go!
+              p {{bar.snippet_text}}
+              div(style="clear: both")
+    script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
+    script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js")
+    script(src="/public/javascripts/core.js")
+    script(type="text/javascript", src="//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.js")

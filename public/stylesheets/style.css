@@ -1,0 +1,61 @@
+body {
+  background: url(../img/bg.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+h1 {
+  font-family: 'Lobster', cursive;
+  font-weight: 400;
+}
+
+p,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
+.container {
+  padding-top: 50px;
+  color: #f8f8f8;
+}
+
+.container h1 {
+  text-align: center;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.6);
+  font-size: 4em;
+}
+
+.container h3 {
+  text-align: center;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.6);
+  padding-bottom: 15px;
+}
+
+.divider {
+  width: 600px;
+  border-top: 1px solid #f8f8f8;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.input-group {
+  padding-bottom: 25px;
+}
+
+.bar-box {
+  horizontal-align: middle;
+  background-color: black;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 15px;
+  opacity: 0.7;
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+}
