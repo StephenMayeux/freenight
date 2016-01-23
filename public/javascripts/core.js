@@ -22,6 +22,7 @@ function mainCtrl($scope, $http) {
   };
 
   $scope.goToBars = function(id) {
+
     $http.post('/api/bars/' + id).success(function(data, status) {
       $scope.id = data;
     });

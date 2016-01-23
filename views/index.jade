@@ -29,6 +29,7 @@ html(ng-app="app")
                 img.img-rounded(src="{{bar.image_url}}", style="float: left; padding-right: 10px")
               a(href="{{bar.url}}", target="_blank")
                 p.lead {{bar.name}}
+                p People who have already checked in: {{bar.visitorCount}}
               button.btn.btn-primary(type="submit", ng-click="goToBars(bar.id)") Go!
               p {{bar.snippet_text}}
               div(style="clear: both")

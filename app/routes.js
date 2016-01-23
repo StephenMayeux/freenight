@@ -19,6 +19,13 @@ module.exports = function(app, passport) {
         res.render('index');
     });
 
+    var allBars;
+    var businesses;
+    app.get('/api/update', function(req, res) {
+      console.log(allBars);
+      res.send('butts');
+    });
+
     app.get('/api/bars/:city', function(req, res) {
 
       function getResults(callback) {
@@ -41,13 +48,13 @@ module.exports = function(app, passport) {
         });
       }
 
-      var allBars = [];
+
       getAllBars(function(docs) {
         allBars = docs;
       });
 
       getResults(function(data) {
-        var businesses = data.businesses;
+        businesses = data.businesses;
         businesses.forEach(function(val, index, array) {
           array[index].visitorCount = 0;
           allBars.forEach(function(v, i, a) {
@@ -58,10 +65,10 @@ module.exports = function(app, passport) {
         });
         res.json(businesses);
       });
-
     });
 
     app.post('/api/bars/:id', function(req, res) {
+
       Bar.find({name: req.params.id}, function(err, docs) {
         if (err) {throw err;}
         if (docs.length !== 0) {
@@ -72,7 +79,7 @@ module.exports = function(app, passport) {
               res.send('You have checked in');
             });
           } else if (x.indexOf('Steve') > -1) {
-              Bar.update({name: req.params.id}, {$pull: {"users": 'Steve' || req.user.twitter.username}}, function(err, updates) {
+              Bar.update({name: req.params.id}, {$pull: {"users": 'Steve' || req.user.twitter.username}}, function(err, data) {
                 if (err) {throw err;}
                 res.send('You have checked out');
               });
@@ -85,11 +92,11 @@ module.exports = function(app, passport) {
             if (err) {
               res.send(err);
             } else {
-              Bar.find(function(err, bar) {
+              Bar.find(function(err, data) {
                 if (err) {
                   res.send(err);
                 } else {
-                  res.send(bar);
+                  res.send(data);
                 }
               });
             }
