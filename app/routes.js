@@ -2,6 +2,7 @@ var Yelp = require('yelp');
 var config = require('../config/auth');
 var Bar = require('./models/bar');
 
+// Stored in cofig/auth.js, which has been added to .gitignore
 var yelp = new Yelp({
   consumer_key: config.yelpAuth.consumer_key,
   consumer_secret: config.yelpAuth.consumer_secret,
@@ -13,7 +14,7 @@ module.exports = function(app, passport) {
 
 // normal routes ===============================================================
 
-    // show the home page (will also have our login links)
+    // show the home page
     app.get('/', function(req, res) {
         res.render('index');
     });
@@ -46,8 +47,7 @@ module.exports = function(app, passport) {
       });
 
       getResults(function(data) {
-        res.send(data); //
-        var businesses = data.businesses; // works! update angular controller!
+        var businesses = data.businesses;
         businesses.forEach(function(val, index, array) {
           array[index].visitorCount = 0;
           allBars.forEach(function(v, i, a) {
@@ -56,7 +56,7 @@ module.exports = function(app, passport) {
             }
           });
         });
-        console.log(businesses);
+        res.json(businesses);
       });
 
     });
@@ -65,14 +65,22 @@ module.exports = function(app, passport) {
       Bar.find({name: req.params.id}, function(err, docs) {
         if (err) {throw err;}
         if (docs.length !== 0) {
-          Bar.update({name: req.params.id}, {$push: {"users": req.user.twitter.username}}, function(err, data) {
-            if (err) {throw err;}
-            res.send(data);
-          });
+          var x = docs[0].users;
+          if (x.indexOf('Steve') === -1) {
+            Bar.update({name: req.params.id}, {$push: {"users": 'Steve' || req.user.twitter.username}}, function(err, data) {
+              if (err) {throw err;}
+              res.send('You have checked in');
+            });
+          } else if (x.indexOf('Steve') > -1) {
+              Bar.update({name: req.params.id}, {$pull: {"users": 'Steve' || req.user.twitter.username}}, function(err, updates) {
+                if (err) {throw err;}
+                res.send('You have checked out');
+              });
+          }
         } else {
           Bar.create({
             name: req.params.id,
-            users: req.user.twitter.username
+            users: 'Steve' || req.user.twitter.username
           }, function(err, bar) {
             if (err) {
               res.send(err);
@@ -88,22 +96,6 @@ module.exports = function(app, passport) {
           });
         }
       });
-      /*Bar.create({
-        name: req.params.id,
-        users: 'a user'
-      }, function(err, bar) {
-        if (err) {
-          res.send(err);
-        } else {
-          Bar.find(function(err, bar) {
-            if (err) {
-              res.send(err);
-            } else {
-              res.send(bar);
-            }
-          });
-        }
-      });*/
     });
 
     app.get('/test', isLoggedIn, function(req, res) {

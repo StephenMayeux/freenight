@@ -23,7 +23,7 @@ html(ng-app="app")
               button.btn.btn-default(type="submit", ng-click="searchBars(formData.text)") Search!
       .row
         .col-xs-12
-          .bars(ng-repeat="bar in bars.businesses")
+          .bars(ng-repeat="bar in bars")
             .bar-box
               a(href="{{bar.url}}", target="_blank")
                 img.img-rounded(src="{{bar.image_url}}", style="float: left; padding-right: 10px")
