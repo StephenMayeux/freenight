@@ -14,6 +14,11 @@ module.exports = function(app, passport) {
 
 // normal routes ===============================================================
 
+    app.get('*', function(req, res, next) {
+      res.locals.user = req.user || null;
+      next();
+    });
+
     // show the home page
     app.get('/', function(req, res) {
         res.render('index');
@@ -23,6 +28,7 @@ module.exports = function(app, passport) {
     var businesses = [];
 
     app.get('/api/bars/:city', function(req, res) {
+
       function getAllBars(callback) {
         Bar.find({}, function(err, docs) {
           if (err) {
@@ -55,11 +61,11 @@ module.exports = function(app, passport) {
           allBars.forEach(function(v, i, a) {
             if (val.id === v.name) {
               array[index].visitorCount = v.users.length;
-              if(v.users.indexOf('Steve') > -1) {
+               /*if (v.users.indexOf(req.user.twitter.username) > -1 || v.users.indexOf('Guest') > -1 ) {
                 array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
               } else {
                 array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
-              }
+              }*/
             }
           });
         });
@@ -88,15 +94,15 @@ module.exports = function(app, passport) {
         if (docs.length > 0) {
           var x = docs[0].users;
           // If current user is not checked in
-          if (x.indexOf('Steve') === -1) {
-            Bar.update({name: req.params.id}, {$push: {"users": 'Steve' || req.user.twitter.username}}, function(err, data) {
+          if (x.indexOf(req.user.twitter.username) === -1) {
+            Bar.update({name: req.params.id}, {$push: {"users": req.user.twitter.username}}, function(err, data) {
               if (err) { throw err; }
               findAllBars(function(docs) {
                 businesses.forEach(function(val, index, array) {
                   docs.forEach(function(v, i, a) {
                     if (val.id === v.name) {
                       array[index].visitorCount = v.users.length;
-                      if(v.users.indexOf('Steve') > -1) {
+                      if(v.users.indexOf(req.user.twitter.username) > -1) {
                         array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
                       } else {
                         array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
@@ -108,15 +114,15 @@ module.exports = function(app, passport) {
               });
             });
             // if current user is already checked in
-          } else if (x.indexOf('Steve') !== -1) {
-            Bar.update({name: req.params.id}, {$pull: {"users": "Steve" || req.twitter.username}}, function(err, data) {
+          } else if (x.indexOf(req.user.twitter.username) !== -1) {
+            Bar.update({name: req.params.id}, {$pull: {"users": req.user.twitter.username}}, function(err, data) {
               if (err) { throw err; }
               findAllBars(function(docs) {
                 businesses.forEach(function(val, index, array) {
                   docs.forEach(function(v, i, a) {
                     if (val.id === v.name) {
                       array[index].visitorCount = v.users.length;
-                      if(v.users.indexOf('Steve') > -1) {
+                      if(v.users.indexOf(req.user.twitter.username) > -1) {
                         array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
                       } else {
                         array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
@@ -131,7 +137,7 @@ module.exports = function(app, passport) {
         } else {
           Bar.create({
             name: req.params.id,
-            users: 'Steve' || req.user.twitter.username
+            users: req.user.twitter.username
           }, function(err, bar) {
             if (err) { throw err; }
             findAllBars(function(docs) {
@@ -139,7 +145,7 @@ module.exports = function(app, passport) {
                 docs.forEach(function(v, i, a) {
                   if (val.id === v.name) {
                     array[index].visitorCount = v.users.length;
-                    if(v.users.indexOf('Steve') > -1) {
+                    if(v.users.indexOf(req.user.twitter.username) > -1) {
                       array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
                     } else {
                       array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
