@@ -16,7 +16,7 @@ var bodyParser   = require('body-parser');
 var session      = require('express-session');
 
 // configuration ===============================================================
-mongoose.connect('mongodb://localhost/freenight'); // connect to our database
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/freenight'); // connect to our database
 
 require('./config/passport')(passport); // pass passport for configuration
 
