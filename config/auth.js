@@ -6,7 +6,7 @@ module.exports = {
     'twitterAuth' : {
         'consumerKey'        : 'wQR0NQAvhwGwA7hXgiJ4gJWZj',
         'consumerSecret'     : '9rDEODx6uoJ6BCNexqQq7P1ww3jkcpnu4STetJNS4Pzlqhvdpt',
-        'callbackURL'        : 'http://127.0.0.1:8080/auth/twitter/callback'
+        'callbackURL'        : 'https://freenight.herokuapp.com/auth/twitter/callback'
     },
 
     'yelpAuth': {
