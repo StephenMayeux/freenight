@@ -19,14 +19,23 @@ module.exports = function(app, passport) {
         res.render('index');
     });
 
-    var allBars;
-    var businesses;
-    app.get('/api/update', function(req, res) {
-      console.log(allBars);
-      res.send('butts');
-    });
+    var allBars = [];
+    var businesses = [];
 
     app.get('/api/bars/:city', function(req, res) {
+      function getAllBars(callback) {
+        Bar.find({}, function(err, docs) {
+          if (err) {
+            throw err;
+          } else {
+            callback(docs);
+          }
+        });
+      }
+
+      getAllBars(function(docs) {
+        allBars = docs;
+      });
 
       function getResults(callback) {
         yelp.search({term: 'bars', location: req.params.city}, function(err, data) {
@@ -38,28 +47,19 @@ module.exports = function(app, passport) {
         });
       }
 
-      function getAllBars(callback) {
-        Bar.find({}, function(err, docs) {
-          if (err) {
-            throw err;
-          } else {
-            callback(docs);
-          }
-        });
-      }
-
-
-      getAllBars(function(docs) {
-        allBars = docs;
-      });
-
       getResults(function(data) {
         businesses = data.businesses;
         businesses.forEach(function(val, index, array) {
           array[index].visitorCount = 0;
+          array[index].currentUser = 'Be the first to check in!';
           allBars.forEach(function(v, i, a) {
             if (val.id === v.name) {
               array[index].visitorCount = v.users.length;
+              if(v.users.indexOf('Steve') > -1) {
+                array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
+              } else {
+                array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
+              }
             }
           });
         });
@@ -69,44 +69,93 @@ module.exports = function(app, passport) {
 
     app.post('/api/bars/:id', function(req, res) {
 
-      Bar.find({name: req.params.id}, function(err, docs) {
-        if (err) {throw err;}
-        if (docs.length !== 0) {
+      function findBars(callback) {
+        Bar.find({name: req.params.id}, function(err, docs) {
+          if (err) { throw err; }
+          callback(docs);
+        });
+      }
+
+      function findAllBars(callback) {
+        Bar.find({}, function(err, docs) {
+          if (err) { throw err; }
+          callback(docs);
+        });
+      }
+
+      findBars(function(docs) {
+        // If it's the FIRST CHECK IN EVER AT THIS BAR
+        if (docs.length > 0) {
           var x = docs[0].users;
+          // If current user is not checked in
           if (x.indexOf('Steve') === -1) {
             Bar.update({name: req.params.id}, {$push: {"users": 'Steve' || req.user.twitter.username}}, function(err, data) {
-              if (err) {throw err;}
-              res.send('You have checked in');
-            });
-          } else if (x.indexOf('Steve') > -1) {
-              Bar.update({name: req.params.id}, {$pull: {"users": 'Steve' || req.user.twitter.username}}, function(err, data) {
-                if (err) {throw err;}
-                res.send('You have checked out');
+              if (err) { throw err; }
+              findAllBars(function(docs) {
+                businesses.forEach(function(val, index, array) {
+                  docs.forEach(function(v, i, a) {
+                    if (val.id === v.name) {
+                      array[index].visitorCount = v.users.length;
+                      if(v.users.indexOf('Steve') > -1) {
+                        array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
+                      } else {
+                        array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
+                      }
+                    }
+                  });
+                });
+                res.json(businesses);
               });
+            });
+            // if current user is already checked in
+          } else if (x.indexOf('Steve') !== -1) {
+            Bar.update({name: req.params.id}, {$pull: {"users": "Steve" || req.twitter.username}}, function(err, data) {
+              if (err) { throw err; }
+              findAllBars(function(docs) {
+                businesses.forEach(function(val, index, array) {
+                  docs.forEach(function(v, i, a) {
+                    if (val.id === v.name) {
+                      array[index].visitorCount = v.users.length;
+                      if(v.users.indexOf('Steve') > -1) {
+                        array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
+                      } else {
+                        array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
+                      }
+                    }
+                  });
+                });
+                res.json(businesses);
+              });
+            });
           }
         } else {
           Bar.create({
             name: req.params.id,
             users: 'Steve' || req.user.twitter.username
           }, function(err, bar) {
-            if (err) {
-              res.send(err);
-            } else {
-              Bar.find(function(err, data) {
-                if (err) {
-                  res.send(err);
-                } else {
-                  res.send(data);
-                }
+            if (err) { throw err; }
+            findAllBars(function(docs) {
+              businesses.forEach(function(val, index, array) {
+                docs.forEach(function(v, i, a) {
+                  if (val.id === v.name) {
+                    array[index].visitorCount = v.users.length;
+                    if(v.users.indexOf('Steve') > -1) {
+                      array[index].currentUser = 'You and ' + (v.users.length - 1) + ' other beautiful people are going!';
+                    } else {
+                      array[index].currentUser = 'You should go! ' + v.users.length + ' beautiful people are waiting for you!';
+                    }
+                  }
+                });
               });
-            }
+              res.json(businesses);
+            });
           });
         }
       });
     });
 
-    app.get('/test', isLoggedIn, function(req, res) {
-      res.send('This is a restricted page!!');
+    app.get('/test', function(req, res) {
+      res.send(allBars);
     });
 
     // LOGOUT ==============================
